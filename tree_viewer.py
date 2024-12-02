@@ -1,11 +1,11 @@
 import os
 import argparse
 
-def print_tree(directory, exclude_dir=None, dirs_only=False, indent=""):
+def print_tree(directory, exclude_dirs=None, dirs_only=False, indent=""):
     """
     Recursively prints the directory tree structure.
     :param directory: Root directory to start the tree from.
-    :param exclude_dir: Directory to exclude (only top-level contents).
+    :param exclude_dirs: List of directories to exclude.
     :param dirs_only: Whether to display only directories.
     :param indent: Current indentation for nested directories.
     """
@@ -19,9 +19,9 @@ def print_tree(directory, exclude_dir=None, dirs_only=False, indent=""):
         full_path = os.path.join(directory, entry)
         is_dir = os.path.isdir(full_path)
 
-        # Skip excluded directory contents
-        if exclude_dir and entry == exclude_dir:
-            print(f"{indent}|-- {entry}")
+        # Skip excluded directories
+        if exclude_dirs and entry in exclude_dirs:
+            print(f"{indent}|-- {entry} [Excluded]")
             continue
 
         # Show only directories if dirs_only is True
@@ -32,9 +32,7 @@ def print_tree(directory, exclude_dir=None, dirs_only=False, indent=""):
 
         # Recursively process subdirectories
         if is_dir:
-            if exclude_dir and entry == exclude_dir:
-                continue  # Skip contents of the excluded directory
-            print_tree(full_path, exclude_dir, dirs_only, indent + "    ")
+            print_tree(full_path, exclude_dirs, dirs_only, indent + "    ")
 
 def main():
     parser = argparse.ArgumentParser(description="Display directory structure.")
@@ -46,15 +44,16 @@ def main():
     )
     parser.add_argument(
         "--exclude", 
-        help="Exclude all contents below this directory (default: 'node_modules').",
-        default="node_modules"
+        nargs="+",
+        help="Exclude all contents below these directories (default: ['node_modules', '.git']).",
+        default=["node_modules", ".git"]
     )
     parser.add_argument("--dirs-only", help="Show only directories, exclude files.", action="store_true")
 
     args = parser.parse_args()
 
     root_dir = args.directory
-    exclude_dir = args.exclude
+    exclude_dirs = args.exclude
     dirs_only = args.dirs_only
 
     if not os.path.exists(root_dir):
@@ -62,7 +61,7 @@ def main():
         return
 
     print(f"Directory structure for: {root_dir}\n")
-    print_tree(root_dir, exclude_dir, dirs_only)
+    print_tree(root_dir, exclude_dirs, dirs_only)
 
 if __name__ == "__main__":
     main()

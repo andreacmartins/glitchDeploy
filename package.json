@@ -1,5 +1,11 @@
 {
   "dependencies": {
     "express": "^4.21.1"
+  },
+  "scripts": {
+    "start": "node ./src/index.js"
+  },
+  "engines": {
+    "node": "16.x"
   }
 }
